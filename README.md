@@ -70,11 +70,13 @@ plugins/glanceable/skills/glanceable/
 └── template.html   the answer view; the AI fills in one JSON block
 ```
 
+The visual rules (colors, type, spacing, components) live in [`DESIGN.md`](DESIGN.md). They're informed by [impeccable](https://github.com/pbakaus/impeccable), [taste-skill](https://github.com/leonxlnx/taste-skill) and [awesome-design-md](https://github.com/voltagent/awesome-design-md).
+
 `template.html` has no external scripts and makes no network calls, so it runs inside sandboxed canvases. Its only outside request is Google Fonts (Newsreader, Geist, Geist Mono); where a platform blocks that, it falls back to system fonts. Open it directly in a browser to see a demo with example data.
 
 ## Status
 
-Early version (0.2.0). Known limits:
+Early version (0.3.0). Known limits:
 - Paywalled or bot-blocked sources can't be checked; they're marked "Couldn't check".
 - Checking quality depends on the AI model doing the checking.
 - "View original" jumps to the highlighted sentence in Chrome and Edge. Other browsers open the page top.

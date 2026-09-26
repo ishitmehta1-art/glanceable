@@ -1,7 +1,7 @@
 {
   "name": "glanceable",
   "displayName": "Glanceable",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Turns any deep research report, or a new question, into a one-screen answer where every line opens its exact source passage.",
   "author": {
     "name": "Ishit Mehta",

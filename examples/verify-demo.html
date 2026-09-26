@@ -6,8 +6,9 @@
 <title>Glanceable answer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap">
 <style>
+/* Tokens: see DESIGN.md */
 :root {
   color-scheme: light;
   --ground: #eef1ee;
@@ -15,227 +16,267 @@
   --raised: #ffffff;
   --ink: #15201b;
   --muted: #5a665f;
-  --faint: #8a958f;
+  --faint: #8a958f;        /* non-text only */
   --rule: #d9dfdb;
-  --hover: #f1f5f2;
-  --accent: #0b6b5e;
-  --accent-tint: #e2f0ec;
-  --marker: #e4f36b;
+  --hover: #f3f6f4;
+  --accent: #0b6b5e;       /* links, focus, the open-source action */
+  --marker: #e4f36b;       /* quoted evidence only */
   --marker-ink: #15201b;
-  --ok: #1c7a45;      --ok-tint: #e1f1e7;
-  --warn: #a35b00;    --warn-tint: #f8ecd8;
-  --bad: #b42318;     --bad-tint: #f9e3e0;
-  --na: #6b7570;      --na-tint: #e8ecea;
+  --ok: #1c7a45;
+  --warn: #a35b00;
+  --bad: #b42318;
+  --na: #6b7570;
   --serif: "Newsreader", "Iowan Old Style", "Charter", "Georgia", serif;
   --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "Geist Mono", ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
+  --r-sm: 4px; --r-md: 8px; --r-lg: 12px;
+  --ease: cubic-bezier(.16, 1, .3, 1);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --ground: #0e1311; --surface: #151b18; --raised: #1a211e;
-    --ink: #e5ece8; --muted: #9aa69f; --faint: #6f7b75; --rule: #26302b; --hover: #1c2420;
-    --accent: #5cc8b4; --accent-tint: #183029;
-    --marker: #5b6a14; --marker-ink: #f3f8e4;
-    --ok: #6fd39b; --ok-tint: #173226;
-    --warn: #f0b458; --warn-tint: #36290f;
-    --bad: #ff8a80; --bad-tint: #3a1a17;
-    --na: #9aa69f; --na-tint: #232b27;
+    --ground: #0e1311; --surface: #151b18; --raised: #1b221f;
+    --ink: #e5ece8; --muted: #a3aea8; --faint: #5f6b65; --rule: #29332e; --hover: #19201d;
+    --accent: #5cc8b4; --marker: #c3d64a; --marker-ink: #10170c;
+    --ok: #6fd39b; --warn: #f0b458; --bad: #ff8a80; --na: #a3aea8;
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --ground: #0e1311; --surface: #151b18; --raised: #1a211e;
-  --ink: #e5ece8; --muted: #9aa69f; --faint: #6f7b75; --rule: #26302b; --hover: #1c2420;
-  --accent: #5cc8b4; --accent-tint: #183029;
-  --marker: #5b6a14; --marker-ink: #f3f8e4;
-  --ok: #6fd39b; --ok-tint: #173226;
-  --warn: #f0b458; --warn-tint: #36290f;
-  --bad: #ff8a80; --bad-tint: #3a1a17;
-  --na: #9aa69f; --na-tint: #232b27;
+  --ground: #0e1311; --surface: #151b18; --raised: #1b221f;
+  --ink: #e5ece8; --muted: #a3aea8; --faint: #5f6b65; --rule: #29332e; --hover: #19201d;
+  --accent: #5cc8b4; --marker: #c3d64a; --marker-ink: #10170c;
+  --ok: #6fd39b; --warn: #f0b458; --bad: #ff8a80; --na: #a3aea8;
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body {
   background: var(--ground); color: var(--ink);
-  font: 15px/1.55 var(--sans);
+  font: 400 15px/1.55 var(--sans);
   -webkit-font-smoothing: antialiased;
 }
+::selection { background: color-mix(in srgb, var(--marker) 60%, transparent); color: var(--ink); }
 button { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-sm); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.data { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
 
-.shell { max-width: 1200px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 48px; }
-@media (min-width: 960px) { .shell { padding-inline: 28px; padding-block: 28px 64px; } }
+.shell { max-width: 1200px; margin: 0 auto; padding-inline: var(--s4); padding-block: var(--s4) var(--s7); }
+@media (min-width: 960px) { .shell { padding-inline: var(--s6); padding-block: var(--s5) 64px; } }
 
 /* Top bar */
 .topbar {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
-  font: 500 12px/1 var(--mono); color: var(--muted);
-  padding-bottom: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; gap: var(--s3); min-height: 44px;
+  padding-bottom: var(--s3); margin-bottom: var(--s6); border-bottom: 1px solid var(--rule);
+  font-size: 13px; color: var(--muted);
 }
-.wordmark { color: var(--ink); letter-spacing: .02em; display: inline-flex; align-items: center; gap: 8px; }
-.wordmark i {
-  width: 10px; height: 10px; border-radius: 2px; background: var(--marker);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 25%, transparent);
+.wordmark { font: 600 14px/1 var(--sans); color: var(--ink); letter-spacing: -.01em; }
+.wordmark span { background: linear-gradient(to top, var(--marker) .42em, transparent .42em); padding: 0 1px; }
+.topbar .mode { margin-left: var(--s1); }
+.topbar .spacer { flex: 1; }
+.sources-btn {
+  display: none; min-height: 44px; padding: 0 var(--s3); cursor: pointer;
+  background: var(--raised); border: 1px solid var(--rule); border-radius: var(--r-md);
+  font: 500 13px var(--sans); color: var(--ink);
 }
-.topbar .sep { color: var(--faint); }
+.sources-btn .data { color: var(--muted); }
 
-.grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); }
 @media (min-width: 960px) { .grid { grid-template-columns: minmax(0, 1fr) 420px; gap: 40px; } }
+main { max-width: 760px; }
 
-/* Answer column */
-.label {
-  font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase;
-  color: var(--muted); margin: 0 0 10px;
-}
-.question { font-size: 16px; color: var(--muted); margin: 0 0 24px; max-width: 62ch; text-wrap: balance; }
+/* Question and answer */
+.question { font: 400 15px/1.5 var(--sans); color: var(--muted); margin: 0 0 var(--s3); max-width: 65ch; text-wrap: balance; }
 .answer {
-  display: block; width: 100%; text-align: left; background: none; border: 0; padding: 0; cursor: default;
-  font: 500 clamp(26px, 3.6vw, 36px)/1.18 var(--serif); letter-spacing: -.01em;
-  font-variation-settings: "opsz" 60; color: var(--ink); max-width: 30ch; text-wrap: balance; margin: 0;
+  margin: 0; font: 500 clamp(26px, 3.6vw, 36px)/1.18 var(--serif); letter-spacing: -.015em;
+  font-variation-settings: "opsz" 60; max-width: 30ch; text-wrap: balance;
 }
-button.answer { cursor: pointer; transition: color .12s ease; }
-button.answer:hover { color: var(--accent); }
+.answer.is-long { font-size: clamp(22px, 2.6vw, 28px); line-height: 1.25; max-width: 38ch; }
+.answer button {
+  all: unset; cursor: pointer; border-radius: var(--r-sm);
+  text-decoration: underline 1px transparent; text-underline-offset: .2em;
+  transition: text-decoration-color 150ms var(--ease);
+}
+.answer button:hover { text-decoration-color: var(--rule); }
+.answer button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.answer-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s4); margin-top: var(--s4); font-size: 13px; color: var(--muted); }
+.answer-meta b { font-weight: 500; color: var(--ink); }
 
 /* Verification bar */
-.check { margin-top: 28px; max-width: 560px; }
-.bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--na-tint); gap: 2px; }
+.check { margin-top: var(--s5); max-width: min(100%, 34rem); }
+.bar { display: flex; gap: 2px; height: 8px; border-radius: 999px; overflow: hidden; background: var(--rule); }
 .bar span { display: block; height: 100%; }
 .bar .supported { background: var(--ok); }
 .bar .partial { background: var(--warn); }
 .bar .unsupported { background: var(--bad); }
-.bar .unverified { background: var(--na); opacity: .5; }
-.tally { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 13px; color: var(--muted); }
-.tally b { font: 500 13px var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); }
-.tally .conf { margin-left: auto; }
-@media (max-width: 520px) { .tally .conf { margin-left: 0; } }
+.bar .unverified { background: var(--faint); }
+.tally { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s4); margin-top: var(--s2); font-size: 13px; color: var(--muted); }
+.tally .data { font-size: 13px; color: var(--ink); font-weight: 500; }
 
 /* Sections */
-.section { margin-top: 40px; }
-.section-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--ink); padding-bottom: 8px; }
-.section-head h2 { font: 600 13px/1 var(--sans); letter-spacing: .02em; margin: 0; }
-.section-head span { font: 400 12px var(--mono); color: var(--faint); }
+.section { margin-top: var(--s7); }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: var(--s2); border-bottom: 1px solid var(--ink); }
+.section-head h2 { font: 600 14px/1.2 var(--sans); margin: 0; }
+.section-head .data { color: var(--muted); }
 .rows { list-style: none; margin: 0; padding: 0; }
-.rows li { border-bottom: 1px solid var(--rule); }
-.row {
-  display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; width: 100%;
-  padding: 14px 10px 14px 4px; text-align: left; background: none; border: 0; border-radius: 0; cursor: pointer;
-  transition: background .12s ease;
+.rows li {
+  position: relative; border-bottom: 1px solid var(--rule);
+  padding: var(--s3) var(--s2) var(--s3) var(--s1);
+  transition: background 150ms var(--ease);
 }
-.row:hover { background: var(--hover); }
-.row[aria-pressed="true"] { background: var(--accent-tint); }
-div.row { cursor: default; }
-div.row:hover { background: none; }
-.glyph {
-  width: 22px; height: 22px; border-radius: 50%; margin-top: 1px;
-  display: grid; place-items: center; font: 600 12px/1 var(--mono);
+.rows li.is-link:hover { background: var(--hover); }
+.rows li.is-selected { background: var(--raised); box-shadow: inset 0 0 0 1px var(--rule); }
+.claim-btn {
+  all: unset; display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: var(--s3);
+  width: 100%; cursor: pointer; border-radius: var(--r-sm);
 }
-.st-supported .glyph { background: var(--ok-tint); color: var(--ok); }
-.st-partial .glyph { background: var(--warn-tint); color: var(--warn); }
-.st-unsupported .glyph { background: var(--bad-tint); color: var(--bad); }
-.st-unverified .glyph { background: var(--na-tint); color: var(--na); }
-.st-step .glyph { background: var(--ink); color: var(--surface); }
-.claim-text { display: block; font-size: 16px; line-height: 1.5; max-width: 68ch; }
-.st-unsupported .claim-text { text-decoration: line-through; text-decoration-color: var(--bad); text-decoration-thickness: 1.5px; color: var(--muted); }
-.row-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 7px; }
-.status-word { font: 500 11px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.claim-btn::after { content: ""; position: absolute; inset: 0; }
+.claim-btn:focus-visible { outline: none; }
+.claim-btn:focus-visible::after { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--r-sm); }
+.claim-static { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: var(--s3); }
+.claim-text { font-size: 16px; line-height: 1.5; max-width: 68ch; }
+.is-selected .claim-text > span {
+  background: linear-gradient(to top, color-mix(in srgb, var(--marker) 70%, transparent) .36em, transparent .36em);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.st-unsupported .claim-text { text-decoration: line-through 1px var(--muted); color: var(--muted); }
+.row-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2);
+  margin: var(--s2) 0 0 32px; font-size: 12px;
+}
+.status-word { font: 500 12px/1 var(--sans); }
 .st-supported .status-word { color: var(--ok); }
 .st-partial .status-word { color: var(--warn); }
 .st-unsupported .status-word { color: var(--bad); }
-.st-unverified .status-word { color: var(--na); }
+.st-unverified .status-word { color: var(--muted); }
 .key {
-  font: 400 12px/1 var(--mono); color: var(--muted); background: var(--raised);
-  border: 1px solid var(--rule); border-radius: 4px; padding: 3px 6px; cursor: pointer;
+  position: relative; z-index: 1; min-height: 28px; padding: 6px var(--s2); cursor: pointer;
+  background: var(--raised); border: 1px solid var(--rule); border-radius: var(--r-sm);
+  font: 400 12px/1 var(--mono); color: var(--muted);
+  transition: color 150ms var(--ease), border-color 150ms var(--ease);
 }
+.key::before { content: ""; position: absolute; inset: -8px; }
 .key:hover { color: var(--accent); border-color: var(--accent); }
 
-details.report { margin-top: 40px; border-top: 1px solid var(--rule); padding-top: 14px; }
-details.report summary { cursor: pointer; font: 500 13px var(--sans); color: var(--muted); }
-details.report pre { white-space: pre-wrap; font: 14px/1.65 var(--serif); color: var(--muted); max-width: 72ch; }
+/* Status glyphs */
+.glyph {
+  width: 20px; height: 20px; border-radius: 999px; margin-top: 2px;
+  display: grid; place-items: center; color: var(--st);
+  background: color-mix(in srgb, var(--st) 16%, var(--surface));
+}
+.glyph svg { width: 14px; height: 14px; }
+.st-supported { --st: var(--ok); }
+.st-partial { --st: var(--warn); }
+.st-unsupported { --st: var(--bad); }
+.st-unverified { --st: var(--na); }
+.st-step { --st: var(--ink); }
+
+details.report { margin-top: var(--s7); border-top: 1px solid var(--rule); padding-top: var(--s3); }
+details.report summary { cursor: pointer; font: 500 13px var(--sans); color: var(--muted); min-height: 28px; }
+details.report pre { white-space: pre-wrap; font: 400 15px/1.65 var(--serif); color: var(--muted); max-width: 72ch; }
 
 /* Reading pane */
 .pane {
-  background: var(--surface); border: 1px solid var(--rule); border-radius: 10px;
-  padding: 22px 22px 24px; align-self: start;
+  background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-lg);
+  padding: var(--s5); align-self: start;
+  scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
 }
-@media (min-width: 960px) { .pane { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); max-height: calc(100vh - 40px); overflow: auto; } }
-.pane-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-.pane-top .label { margin: 0; }
+@media (min-width: 960px) {
+  .pane { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--s5)); max-height: calc(100vh - 48px); overflow: auto; }
+}
+.handle { display: none; width: 36px; height: 4px; border-radius: 2px; background: var(--rule); margin: 0 auto var(--s3); }
+.pane-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); margin-bottom: var(--s3); }
+.pane-head h2 { font: 500 13px/1.3 var(--sans); color: var(--muted); margin: 0; }
+.pane-head h2:focus { outline: none; }
 .close {
-  display: none; background: none; border: 1px solid var(--rule); border-radius: 6px;
-  font: 500 12px var(--mono); color: var(--muted); padding: 4px 10px; cursor: pointer;
+  display: none; min-height: 44px; min-width: 44px; padding: 0 var(--s3); cursor: pointer;
+  background: none; border: 1px solid var(--rule); border-radius: var(--r-md); font: 500 13px var(--sans); color: var(--muted);
 }
-.src-title { font: 500 21px/1.25 var(--serif); font-variation-settings: "opsz" 36; margin: 0 0 6px; text-wrap: balance; }
-.src-site { font: 400 12px/1.4 var(--mono); color: var(--muted); margin: 0 0 18px; overflow-wrap: anywhere; }
-.verdict {
-  display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 8px;
-  font-size: 13px; line-height: 1.45; margin-bottom: 18px;
-}
-.verdict .glyph { flex: none; width: 20px; height: 20px; font-size: 11px; margin: 0; }
-.verdict.st-supported { background: var(--ok-tint); }
-.verdict.st-partial { background: var(--warn-tint); }
-.verdict.st-unsupported { background: var(--bad-tint); }
-.verdict.st-unverified { background: var(--na-tint); }
-.verdict strong { display: block; font-weight: 600; }
-.pane .claim { font-size: 14px; color: var(--muted); margin: 0 0 16px; }
-.pane .claim b { color: var(--ink); font-weight: 500; }
+.src-title { font: 500 21px/1.25 var(--serif); font-variation-settings: "opsz" 36; margin: 0 0 var(--s1); text-wrap: balance; }
+.src-site { color: var(--muted); margin: 0 0 var(--s5); overflow-wrap: anywhere; }
+.pane .claim { font: 400 15px/1.5 var(--sans); color: var(--ink); margin: 0 0 var(--s4); }
+.pane .claim span { color: var(--muted); }
 .passage {
-  margin: 0 0 20px; font: 400 18px/1.62 var(--serif); font-variation-settings: "opsz" 18;
-  overflow-wrap: anywhere;
+  margin: 0 0 var(--s4); padding-left: var(--s4); border-left: 2px solid var(--rule);
+  font: 400 18px/1.62 var(--serif); font-variation-settings: "opsz" 18; overflow-wrap: anywhere;
 }
-.passage::before { content: "\201C"; }
-.passage::after { content: "\201D"; }
 .passage mark {
-  color: var(--marker-ink); background: var(--marker); padding: .04em .14em;
+  color: var(--marker-ink); padding: .04em .14em; border-radius: .18em .4em .22em .35em;
+  background: linear-gradient(var(--marker), var(--marker)) no-repeat 0 0 / 0% 100%;
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
-  border-radius: .18em .4em .22em .35em;
+  animation: sweep 320ms var(--ease) 80ms forwards;
 }
-.pane .empty-quote { font-size: 14px; color: var(--muted); font-style: italic; margin: 0 0 20px; }
+@keyframes sweep { to { background-size: 100% 100%; } }
+.passage .cut { color: var(--muted); }
+.verdict { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: var(--s2) var(--s3); align-items: start; margin: 0 0 var(--s5); }
+.verdict .glyph { margin-top: 0; }
+.verdict p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.verdict b { font-weight: 600; color: var(--st); margin-right: var(--s1); }
+.empty-quote { font-size: 14px; color: var(--muted); margin: 0 0 var(--s4); }
 .open {
-  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
-  font: 500 14px var(--sans); color: var(--accent);
-  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); border-radius: 6px; padding: 8px 12px;
+  display: inline-flex; align-items: center; gap: var(--s2); min-height: 44px; padding: 0 var(--s4);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: var(--r-md);
+  font: 500 14px var(--sans); color: var(--accent); text-decoration: none;
+  transition: background 150ms var(--ease);
 }
-.open:hover { background: var(--accent-tint); }
-.hint { font-size: 12px; color: var(--faint); margin: 10px 0 0; }
+.open:hover { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.hint { font-size: 12px; color: var(--muted); margin: var(--s2) 0 0; }
 
+.pane-intro { font-size: 13px; color: var(--muted); margin: 0 0 var(--s2); }
 .srclist { list-style: none; margin: 0; padding: 0; }
-.srclist li { border-top: 1px solid var(--rule); }
-.srclist li:first-child { border-top: 0; }
+.srclist li + li { border-top: 1px solid var(--rule); }
 .srcitem {
-  display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; width: 100%;
-  padding: 12px 4px; text-align: left; background: none; border: 0; cursor: pointer;
+  all: unset; box-sizing: border-box; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--s2);
+  width: 100%; min-height: 44px; padding: var(--s3) var(--s1); cursor: pointer; border-radius: var(--r-sm);
 }
-.srcitem:hover .srcname { color: var(--accent); }
-.srcnum { font: 500 12px/1.6 var(--mono); color: var(--faint); font-variant-numeric: tabular-nums; }
-.srcname { font: 500 15px/1.35 var(--serif); display: block; }
-.srcdom { font: 400 12px var(--mono); color: var(--muted); }
-.pane-intro { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+.srcitem:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
+.srcitem:hover .srcname { text-decoration: underline 1px var(--rule); text-underline-offset: .2em; }
+.srcnum { color: var(--muted); line-height: 1.6; }
+.srcname { display: block; font: 500 15px/1.35 var(--serif); }
+.srcitem .data { color: var(--muted); }
+
+.scrim { display: none; }
 
 @media (max-width: 959px) {
+  .sources-btn, .close, .handle { display: block; }
+  .scrim {
+    display: block; position: fixed; inset: 0; z-index: 19;
+    background: color-mix(in srgb, var(--ink) 28%, transparent);
+    opacity: 0; visibility: hidden; transition: opacity 240ms var(--ease), visibility 0s 240ms;
+  }
+  .scrim.is-open { opacity: 1; visibility: visible; transition-delay: 0s; }
   .pane {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; max-height: 78vh; overflow: auto;
-    border-radius: 14px 14px 0 0; border-bottom: 0;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-    box-shadow: 0 -8px 30px rgba(0,0,0,.18);
-    transform: translateY(105%); transition: transform .22s ease;
+    border-radius: var(--r-lg) var(--r-lg) 0 0; border-bottom: 0;
+    padding: var(--s3) var(--s4) calc(var(--s5) + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -12px 32px color-mix(in srgb, var(--ink) 16%, transparent);
+    transform: translateY(105%); visibility: hidden;
+    transition: transform 240ms var(--ease), visibility 0s 240ms;
   }
-  .pane.is-open { transform: none; }
-  .close { display: block; }
+  .pane.is-open { transform: none; visibility: visible; transition-delay: 0s; }
 }
-@media (prefers-reduced-motion: reduce) { .pane, .row, button.answer { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; }
+  .passage mark { animation: none; background-size: 100% 100%; }
+}
 </style>
 </head>
 <body>
 <div class="shell">
   <header class="topbar" id="topbar">
-    <span class="wordmark"><i aria-hidden="true"></i>glanceable</span>
+    <span class="wordmark"><span>glance</span>able</span>
+    <span class="mode" id="mode"></span>
+    <span class="spacer"></span>
+    <button type="button" class="sources-btn" id="sources-btn" aria-controls="pane" aria-expanded="false"></button>
   </header>
   <div class="grid">
-    <main id="main" aria-label="Answer"></main>
-    <aside class="pane" id="pane" aria-label="Source" aria-live="polite"></aside>
+    <main id="main"></main>
+    <aside class="pane" id="pane" aria-label="Source"></aside>
   </div>
+  <div class="scrim" id="scrim"></div>
+  <p class="sr-only" role="status" id="status"></p>
 </div>
 
 <!--
@@ -399,6 +440,9 @@ details.report pre { white-space: pre-wrap; font: 14px/1.65 var(--serif); color:
   "use strict";
   var main = document.getElementById("main");
   var pane = document.getElementById("pane");
+  var scrim = document.getElementById("scrim");
+  var status = document.getElementById("status");
+  var sourcesBtn = document.getElementById("sources-btn");
   var data;
   try {
     data = JSON.parse(document.getElementById("glance-data").textContent);
@@ -409,18 +453,48 @@ details.report pre { white-space: pre-wrap; font: 14px/1.65 var(--serif); color:
   var sources = data.sources || {};
   var order = Object.keys(sources);
   var STATUS = {
-    supported:   { glyph: "✓", word: "Supported",        say: "The source says this." },
-    partial:     { glyph: "!",      word: "Partly supported", say: "The source says something weaker or narrower." },
-    unsupported: { glyph: "×", word: "Not supported",    say: "The source doesn't say this." },
-    unverified:  { glyph: "?",      word: "Couldn't check",   say: "The source couldn't be opened." }
+    supported:   { word: "Supported",        say: "The source says this." },
+    partial:     { word: "Partly supported", say: "The source says something weaker or narrower." },
+    unsupported: { word: "Not supported",    say: "The source doesn't say this." },
+    unverified:  { word: "Couldn't check",   say: "The source couldn't be opened." }
   };
-  var active = null;
+  var ICONS = {
+    supported: "M3.5 8.5l3 3 6-7",
+    partial: "M8 3.5v5.5 M8 12.2v.3",
+    unsupported: "M4.5 4.5l7 7 M11.5 4.5l-7 7",
+    unverified: "M6 6a2 2 0 1 1 2.8 1.8c-.5.3-.8.7-.8 1.3v.4 M8 12.2v.3",
+    step: "M3.5 8h9 M9 4.5l3.5 3.5-3.5 3.5"
+  };
+  var active = null;      // selected <li>
+  var opener = null;      // element to return focus to
+  var mobile = window.matchMedia("(max-width: 959px)");
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
     if (text != null) n.textContent = text;
     return n;
+  }
+  function glyph(kind) {
+    var wrap = el("span", "glyph");
+    wrap.setAttribute("aria-hidden", "true");
+    var ns = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 16 16");
+    var p = document.createElementNS(ns, "path");
+    p.setAttribute("d", ICONS[kind]);
+    p.setAttribute("fill", "none");
+    p.setAttribute("stroke", "currentColor");
+    p.setAttribute("stroke-width", "2");
+    p.setAttribute("stroke-linecap", "round");
+    p.setAttribute("stroke-linejoin", "round");
+    svg.appendChild(p);
+    wrap.appendChild(svg);
+    return wrap;
+  }
+  // Remove markup that sometimes survives copying from source pages.
+  function clean(s) {
+    return String(s || "").replace(/<[^>]+>/g, "").replace(/\*\*|__|`/g, "").replace(/\s+/g, " ").trim();
   }
   function safeUrl(u) {
     try { var p = new URL(u); return (p.protocol === "https:" || p.protocol === "http:") ? p : null; }
@@ -445,27 +519,48 @@ details.report pre { white-space: pre-wrap; font: 14px/1.65 var(--serif); color:
     var seen = {};
     return cites.filter(function (c) { if (seen[c.source]) return false; seen[c.source] = 1; return true; });
   }
+  function keyButton(cite, onOpen) {
+    var k = el("button", "key data", "[" + num(cite.source) + "] " + siteOf(sources[cite.source]));
+    k.type = "button";
+    k.setAttribute("aria-label", "Open source " + num(cite.source) + ", " + siteOf(sources[cite.source]));
+    k.addEventListener("click", function (e) { e.stopPropagation(); onOpen(cite, k); });
+    return k;
+  }
 
   // Top bar
-  var top = document.getElementById("topbar");
-  function topItem(text) { top.appendChild(el("span", "sep", "/")); top.appendChild(el("span", null, text)); }
-  topItem(data.mode === "verify" ? "Checked report" : "Researched answer");
-  topItem(order.length + (order.length === 1 ? " source" : " sources"));
+  var mode = document.getElementById("mode");
+  mode.textContent = data.mode === "verify" ? "Checked report" : "Researched answer";
+  sourcesBtn.appendChild(document.createTextNode("Sources "));
+  sourcesBtn.appendChild(el("span", "data", String(order.length)));
+  sourcesBtn.addEventListener("click", function () { opener = sourcesBtn; showList(true); });
 
   // Question and answer
-  if (data.question) {
-    main.appendChild(el("p", "label", "Question"));
-    main.appendChild(el("p", "question", data.question));
-  }
+  if (data.question) main.appendChild(el("p", "question", data.question));
   var answer = data.answer || {};
-  var answerCites = validCites(answer);
-  main.appendChild(el("p", "label", "Answer"));
-  var ans = el(answerCites.length ? "button" : "p", "answer", answer.text || "No answer was given.");
+  var answerText = answer.text || "No answer was given.";
+  var answerCites = uniqueBySource(validCites(answer));
+  var h1 = el("h1", "answer" + (answerText.length > 120 ? " is-long" : ""));
   if (answerCites.length) {
-    ans.type = "button";
-    ans.addEventListener("click", function () { openSource({ text: answer.text }, answerCites[0], null); });
+    var ab = el("button", null, answerText);
+    ab.type = "button";
+    ab.addEventListener("click", function () { opener = ab; openSource({ text: answerText }, answerCites[0], null); });
+    h1.appendChild(ab);
+  } else {
+    h1.textContent = answerText;
   }
-  main.appendChild(ans);
+  main.appendChild(h1);
+
+  var am = el("div", "answer-meta");
+  if (answer.confidence) {
+    var conf = el("span");
+    conf.appendChild(document.createTextNode("Confidence: "));
+    conf.appendChild(el("b", null, answer.confidence));
+    am.appendChild(conf);
+  }
+  answerCites.forEach(function (c) {
+    am.appendChild(keyButton(c, function (cite, k) { opener = k; openSource({ text: answerText }, cite, null); }));
+  });
+  if (am.childNodes.length) main.appendChild(am);
 
   // Verification bar
   var claims = [].concat(data.reasons || [], data.risks || [], data.corrections || []);
@@ -483,59 +578,48 @@ details.report pre { white-space: pre-wrap; font: 14px/1.65 var(--serif); color:
       bar.appendChild(s);
       parts.push(counts[k] + " " + STATUS[k].word.toLowerCase());
     });
-    bar.setAttribute("aria-label", "Claims checked: " + parts.join(", "));
+    bar.setAttribute("aria-label", claims.length + " claims checked: " + parts.join(", "));
     check.appendChild(bar);
     var tally = el("div", "tally");
     Object.keys(counts).forEach(function (k) {
       if (!counts[k]) return;
       var t = el("span");
-      t.appendChild(el("b", null, String(counts[k])));
+      t.appendChild(el("span", "data", String(counts[k])));
       t.appendChild(document.createTextNode(" " + STATUS[k].word.toLowerCase()));
       tally.appendChild(t);
     });
-    if (answer.confidence) {
-      var c = el("span", "conf");
-      c.appendChild(document.createTextNode("Confidence "));
-      c.appendChild(el("b", null, answer.confidence));
-      tally.appendChild(c);
-    }
     check.appendChild(tally);
     main.appendChild(check);
   }
 
   // Sections
   function renderRow(item, isStep) {
-    var li = el("li");
     var cites = isStep ? [] : validCites(item);
     var st = isStep ? "step" : (STATUS[item.status] ? item.status : "unverified");
-    var row = el(cites.length ? "button" : "div", "row st-" + st);
+    var li = el("li", "st-" + st);
+    var inner;
     if (cites.length) {
-      row.type = "button";
-      row.setAttribute("aria-pressed", "false");
-      row.addEventListener("click", function () { openSource(item, cites[0], row); });
+      li.classList.add("is-link");
+      inner = el("button", "claim-btn");
+      inner.type = "button";
+      inner.addEventListener("click", function () { opener = inner; openSource(item, cites[0], li); });
+    } else {
+      inner = el("div", "claim-static");
     }
-    var g = el("span", "glyph", isStep ? "→" : STATUS[st].glyph);
-    g.setAttribute("aria-hidden", "true");
-    row.appendChild(g);
-    var body = el("span");
-    body.appendChild(el("span", "claim-text", item.text));
+    inner.appendChild(glyph(st));
+    var text = el("span", "claim-text");
+    text.appendChild(el("span", null, item.text));
+    inner.appendChild(text);
+    if (!isStep) inner.appendChild(el("span", "sr-only", ". " + STATUS[st].word));
+    li.appendChild(inner);
     if (!isStep) {
-      var meta = el("span", "row-meta");
+      var meta = el("div", "row-meta");
       meta.appendChild(el("span", "status-word", STATUS[st].word));
       uniqueBySource(cites).forEach(function (ct) {
-        var k = el("span", "key", "[" + num(ct.source) + "] " + siteOf(sources[ct.source]));
-        k.setAttribute("role", "button");
-        k.tabIndex = 0;
-        k.setAttribute("aria-label", "Open source " + num(ct.source));
-        function go(e) { e.stopPropagation(); openSource(item, ct, row); }
-        k.addEventListener("click", go);
-        k.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(e); } });
-        meta.appendChild(k);
+        meta.appendChild(keyButton(ct, function (cite, k) { opener = k; openSource(item, cite, li); }));
       });
-      body.appendChild(meta);
+      li.appendChild(meta);
     }
-    row.appendChild(body);
-    li.appendChild(row);
     return li;
   }
   function renderSection(title, list, isStep) {
@@ -543,7 +627,7 @@ details.report pre { white-space: pre-wrap; font: 14px/1.65 var(--serif); color:
     var s = el("section", "section");
     var head = el("div", "section-head");
     head.appendChild(el("h2", null, title));
-    head.appendChild(el("span", null, String(list.length)));
+    head.appendChild(el("span", "data", String(list.length)));
     s.appendChild(head);
     var ul = el("ul", "rows");
     list.forEach(function (i) { ul.appendChild(renderRow(i, isStep)); });
@@ -562,32 +646,83 @@ details.report pre { white-space: pre-wrap; font: 14px/1.65 var(--serif); color:
     main.appendChild(d);
   }
 
+  // Passage: the quote plus one sentence either side, trimmed with an ellipsis.
+  function passage(ctx, quote) {
+    var bq = el("blockquote", "passage");
+    var at = quote ? ctx.indexOf(quote) : -1;
+    if (at < 0) { bq.textContent = ctx || quote; return bq; }
+    var SPLIT = /(?<=[.!?])\s+/;
+    var before = ctx.slice(0, at).split(SPLIT);
+    var after = ctx.slice(at + quote.length).split(SPLIT);
+    var keepBefore = before.slice(-2).join(" ");
+    var keepAfter = after.slice(0, 2).join(" ");
+    if (before.length > 2) bq.appendChild(el("span", "cut", "… "));
+    bq.appendChild(document.createTextNode(keepBefore + (keepBefore && !/\s$/.test(keepBefore) && /[.!?]$/.test(keepBefore) ? " " : "")));
+    bq.appendChild(el("mark", null, quote));
+    bq.appendChild(document.createTextNode(keepAfter && !/^[\s,;:.)]/.test(keepAfter) ? " " + keepAfter : keepAfter));
+    if (after.length > 2) bq.appendChild(el("span", "cut", " …"));
+    return bq;
+  }
+
   // Reading pane
+  function head(text, withClose) {
+    pane.replaceChildren();
+    pane.appendChild(el("div", "handle"));
+    var h = el("div", "pane-head");
+    var h2 = el("h2", null, text);
+    h2.tabIndex = -1;
+    h.appendChild(h2);
+    if (withClose) {
+      var x = el("button", "close", "Close");
+      x.type = "button";
+      x.addEventListener("click", closeSheet);
+      h.appendChild(x);
+    }
+    pane.appendChild(h);
+    return h2;
+  }
+  function select(li) {
+    if (active) active.classList.remove("is-selected");
+    active = li;
+    if (li) li.classList.add("is-selected");
+  }
   function firstUse(id) {
-    var all = [{ text: answer.text, cites: answer.cites }].concat(claims);
+    var all = [{ text: answerText, cites: answer.cites }].concat(claims);
     for (var i = 0; i < all.length; i++) {
       var cs = all[i].cites || [];
       for (var j = 0; j < cs.length; j++) if (cs[j] && cs[j].source === id) return { item: all[i], cite: cs[j] };
     }
     return null;
   }
-  function showList() {
+  function openSheet(focusEl) {
+    if (!mobile.matches) return;
+    pane.classList.add("is-open");
+    scrim.classList.add("is-open");
+    sourcesBtn.setAttribute("aria-expanded", "true");
+    if (focusEl) focusEl.focus({ preventScroll: true });
+  }
+  function closeSheet() {
+    var wasOpen = pane.classList.contains("is-open");
     pane.classList.remove("is-open");
-    pane.replaceChildren();
-    var t = el("div", "pane-top");
-    t.appendChild(el("p", "label", "Sources"));
-    pane.appendChild(t);
-    pane.appendChild(el("p", "pane-intro", "Click any line to read the exact passage it came from."));
+    scrim.classList.remove("is-open");
+    sourcesBtn.setAttribute("aria-expanded", "false");
+    select(null);
+    if (!mobile.matches || wasOpen) showList(false);
+    if (wasOpen && opener) opener.focus({ preventScroll: true });
+  }
+  function showList(open) {
+    var h2 = head("Sources", true);
+    pane.appendChild(el("p", "pane-intro", "Select any line to read the exact passage it came from."));
     var ul = el("ol", "srclist");
     order.forEach(function (id) {
       var src = sources[id];
       var li = el("li");
       var b = el("button", "srcitem");
       b.type = "button";
-      b.appendChild(el("span", "srcnum", String(num(id)).padStart(2, "0")));
+      b.appendChild(el("span", "srcnum data", String(num(id)).padStart(2, "0")));
       var txt = el("span");
       txt.appendChild(el("span", "srcname", src.title || "Untitled source"));
-      txt.appendChild(el("span", "srcdom", siteOf(src)));
+      txt.appendChild(el("span", "data", siteOf(src)));
       b.appendChild(txt);
       b.addEventListener("click", function () {
         var use = firstUse(id);
@@ -597,62 +732,36 @@ details.report pre { white-space: pre-wrap; font: 14px/1.65 var(--serif); color:
       ul.appendChild(li);
     });
     pane.appendChild(ul);
+    if (open) openSheet(h2);
   }
-  function close() {
-    if (active) { active.setAttribute("aria-pressed", "false"); active = null; }
-    showList();
-  }
-  function openSource(item, cite, row) {
-    if (active) active.setAttribute("aria-pressed", "false");
-    active = row;
-    if (row) row.setAttribute("aria-pressed", "true");
+  function openSource(item, cite, li) {
+    select(li);
     var src = sources[cite.source] || {};
     var st = STATUS[item.status] ? item.status : null;
-    pane.replaceChildren();
-
-    var t = el("div", "pane-top");
-    t.appendChild(el("p", "label", "Source " + num(cite.source) + " of " + order.length));
-    var x = el("button", "close", "Close");
-    x.type = "button";
-    x.addEventListener("click", close);
-    t.appendChild(x);
-    pane.appendChild(t);
+    var label = "Source " + num(cite.source) + " of " + order.length;
+    var h2 = head(label, true);
 
     pane.appendChild(el("h3", "src-title", src.title || "Untitled source"));
-    pane.appendChild(el("p", "src-site", siteOf(src)));
+    pane.appendChild(el("p", "src-site data", siteOf(src)));
 
-    if (st) {
-      var v = el("div", "verdict st-" + st);
-      var g = el("span", "glyph", STATUS[st].glyph);
-      g.setAttribute("aria-hidden", "true");
-      v.appendChild(g);
-      var vt = el("div");
-      vt.appendChild(el("strong", null, STATUS[st].word));
-      vt.appendChild(document.createTextNode(item.note || STATUS[st].say));
-      v.appendChild(vt);
-      pane.appendChild(v);
-    }
     var cl = el("p", "claim");
-    cl.appendChild(el("b", null, "Claim "));
+    cl.appendChild(el("span", null, "Claim: "));
     cl.appendChild(document.createTextNode(item.text || ""));
     pane.appendChild(cl);
 
-    var ctx = src.context || "";
-    var quote = cite.quote || "";
-    if (ctx || quote) {
-      var p = el("blockquote", "passage");
-      var body = ctx || quote;
-      var at = quote ? body.indexOf(quote) : -1;
-      if (at >= 0) {
-        p.appendChild(document.createTextNode(body.slice(0, at)));
-        p.appendChild(el("mark", null, quote));
-        p.appendChild(document.createTextNode(body.slice(at + quote.length)));
-      } else {
-        p.textContent = body;
-      }
-      pane.appendChild(p);
-    } else {
-      pane.appendChild(el("p", "empty-quote", "No passage was captured from this source."));
+    var ctx = clean(src.context);
+    var quote = clean(cite.quote);
+    if (ctx || quote) pane.appendChild(passage(ctx, quote));
+    else pane.appendChild(el("p", "empty-quote", "No passage was captured from this source."));
+
+    if (st) {
+      var v = el("div", "verdict st-" + st);
+      v.appendChild(glyph(st));
+      var vp = el("p");
+      vp.appendChild(el("b", null, STATUS[st].word));
+      vp.appendChild(document.createTextNode(item.note || STATUS[st].say));
+      v.appendChild(vp);
+      pane.appendChild(v);
     }
 
     var u = safeUrl(src.url);
@@ -664,10 +773,13 @@ details.report pre { white-space: pre-wrap; font: 14px/1.65 var(--serif); color:
       pane.appendChild(a);
       if (quote) pane.appendChild(el("p", "hint", "Jumps to the highlighted sentence in Chrome and Edge."));
     }
-    pane.classList.add("is-open");
+    status.textContent = "Showing " + label.toLowerCase() + ", " + (src.title || "untitled");
+    pane.scrollTop = 0;
+    openSheet(h2);
   }
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
-  showList();
+  scrim.addEventListener("click", closeSheet);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
+  showList(false);
 })();
 </script>
 </body>
