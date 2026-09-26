@@ -76,7 +76,7 @@ The visual rules (colors, type, spacing, components) live in [`DESIGN.md`](DESIG
 
 ## Status
 
-Early version (0.3.0). Known limits:
+Early version (0.4.0). Known limits:
 - Paywalled or bot-blocked sources can't be checked; they're marked "Couldn't check".
 - Checking quality depends on the AI model doing the checking.
 - "View original" jumps to the highlighted sentence in Chrome and Edge. Other browsers open the page top.
