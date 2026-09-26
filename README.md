@@ -30,6 +30,10 @@ The AI researches it with its normal web search, then builds the glanceable view
 
 The AI pulls out the answer, checks each claim against the source it cites, and builds the view.
 
+## See it
+
+[`examples/verify-demo.html`](examples/verify-demo.html) is a real test result. A report with three planted mistakes went in; glanceable caught all three and flagged the source it couldn't open. Download the file and open it in a browser, or see [`examples/`](examples/) for details.
+
 ## Where it works
 
 | Platform | How it shows |
@@ -66,11 +70,11 @@ plugins/glanceable/skills/glanceable/
 └── template.html   the answer view; the AI fills in one JSON block
 ```
 
-`template.html` is self-contained: no external scripts, fonts or network calls, so it runs inside sandboxed canvases. Open it directly in a browser to see a demo with example data.
+`template.html` has no external scripts and makes no network calls, so it runs inside sandboxed canvases. Its only outside request is Google Fonts (Newsreader, Geist, Geist Mono); where a platform blocks that, it falls back to system fonts. Open it directly in a browser to see a demo with example data.
 
 ## Status
 
-Early version (0.1.0). Known limits:
+Early version (0.2.0). Known limits:
 - Paywalled or bot-blocked sources can't be checked; they're marked "Couldn't check".
 - Checking quality depends on the AI model doing the checking.
 - "View original" jumps to the highlighted sentence in Chrome and Edge. Other browsers open the page top.

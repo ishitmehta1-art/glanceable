@@ -245,64 +245,152 @@ details.report pre { white-space: pre-wrap; font: 14px/1.65 var(--serif); color:
 -->
 <script type="application/json" id="glance-data">
 {
-  "mode": "research",
-  "question": "Example: should a small team pick PostgreSQL or MongoDB for an order-tracking app?",
-  "answer": {
-    "text": "PostgreSQL. Orders, customers and payments are related records, and the team needs transactions across them.",
-    "confidence": "high",
-    "cites": [{ "source": "s1", "quote": "Relational data with many joins fits a relational database best." }]
+ "mode": "verify",
+ "question": "Which Python HTTP client should a new backend service use in 2026?",
+ "answer": {
+  "text": "httpx. It offers a requests-style API with both sync and async clients in one package.",
+  "confidence": "medium",
+  "cites": [
+   {
+    "source": "s1",
+    "quote": "It includes an integrated command line client, has support for both HTTP/1.1 and HTTP/2, and provides both sync and async APIs."
+   },
+   {
+    "source": "s2",
+    "quote": "HTTPX aims to be broadly compatible with the requests API, although there are a few design differences in places."
+   }
+  ]
+ },
+ "reasons": [
+  {
+   "text": "httpx mirrors the requests API, so teams that know requests pick it up quickly.",
+   "status": "supported",
+   "note": "The doc says 'broadly compatible' with listed differences; the learning-curve benefit is the report's inference.",
+   "cites": [
+    {
+     "source": "s2",
+     "quote": "HTTPX aims to be broadly compatible with the requests API, although there are a few design differences in places."
+    }
+   ]
   },
-  "reasons": [
+  {
+   "text": "httpx provides both sync and async clients from one package.",
+   "status": "supported",
+   "cites": [
     {
-      "text": "Order data is highly relational: orders link to customers, items and payments.",
-      "status": "supported",
-      "cites": [{ "source": "s1", "quote": "Relational data with many joins fits a relational database best." }]
-    },
-    {
-      "text": "Multi-record transactions are simpler and safer in PostgreSQL.",
-      "status": "partial",
-      "note": "The source says both support transactions; it only says PostgreSQL's are more mature.",
-      "cites": [{ "source": "s2", "quote": "Both databases now support multi-document transactions, though PostgreSQL's have a longer track record." }]
-    },
-    {
-      "text": "MongoDB is always faster for writes.",
-      "status": "unsupported",
-      "note": "The cited source says the opposite: performance depends on the workload.",
-      "cites": [{ "source": "s2", "quote": "Neither is universally faster; results depend heavily on workload and schema design." }]
+     "source": "s1",
+     "quote": "It includes an integrated command line client, has support for both HTTP/1.1 and HTTP/2, and provides both sync and async APIs."
     }
-  ],
-  "risks": [
-    {
-      "text": "If product attributes vary a lot, a rigid schema can slow changes.",
-      "status": "unverified",
-      "note": "The source page could not be opened to check this.",
-      "cites": [{ "source": "s3", "quote": "" }]
-    }
-  ],
-  "next_steps": [
-    { "text": "Sketch the five core tables and check whether any data truly needs a flexible schema." }
-  ],
-  "sources": {
-    "s1": {
-      "title": "Example source: choosing a database",
-      "site": "example.com",
-      "url": "https://example.com/choosing-a-database",
-      "context": "When deciding, look at the shape of your data first. Relational data with many joins fits a relational database best. Document stores shine when each record is self-contained."
-    },
-    "s2": {
-      "title": "Example source: transactions and performance",
-      "site": "example.org",
-      "url": "https://example.org/transactions",
-      "context": "Both databases now support multi-document transactions, though PostgreSQL's have a longer track record. Neither is universally faster; results depend heavily on workload and schema design."
-    },
-    "s3": {
-      "title": "Example source: schema flexibility",
-      "site": "example.net",
-      "url": "https://example.net/schemas",
-      "context": ""
-    }
+   ]
   },
-  "report": ""
+  {
+   "text": "httpx applies timeouts by default, while requests waits indefinitely unless a timeout is set.",
+   "status": "supported",
+   "note": "The httpx compatibility doc states both halves; the requests README only lists 'Connection Timeouts' and says nothing about defaults.",
+   "cites": [
+    {
+     "source": "s2",
+     "quote": "HTTPX defaults to including reasonable timeouts for all network operations, while Requests has no timeouts by default."
+    },
+    {
+     "source": "s4",
+     "quote": "Connection Timeouts"
+    }
+   ]
+  }
+ ],
+ "risks": [
+  {
+   "text": "aiohttp is roughly 3x faster than httpx for high-concurrency workloads.",
+   "status": "unverified",
+   "note": "The cited benchmark site (example-benchmarks.dev) could not be reached.",
+   "cites": [
+    {
+     "source": "s6",
+     "quote": ""
+    }
+   ]
+  }
+ ],
+ "next_steps": [
+  {
+   "text": "Pin httpx==0.28.1 (not 1.0, which isn't released) and set an explicit timeout in your client config."
+  }
+ ],
+ "sources": {
+  "s1": {
+   "title": "httpx README",
+   "site": "encode/httpx",
+   "url": "https://github.com/encode/httpx/blob/master/README.md",
+   "context": "HTTPX is a fully featured HTTP client library for Python 3. It includes an integrated command line client, has support for both HTTP/1.1 and HTTP/2, and provides both sync and async APIs."
+  },
+  "s2": {
+   "title": "httpx docs: Requests Compatibility Guide",
+   "site": "encode/httpx",
+   "url": "https://github.com/encode/httpx/blob/master/docs/compatibility.md",
+   "context": "HTTPX aims to be broadly compatible with the requests API, although there are a few design differences in places. This documentation outlines places where the API differs... … HTTPX defaults to including reasonable timeouts for all network operations, while Requests has no timeouts by default. To get the same behavior as Requests, set the timeout parameter to None:"
+  },
+  "s3": {
+   "title": "httpx changelog",
+   "site": "encode/httpx",
+   "url": "https://github.com/encode/httpx/blob/master/CHANGELOG.md",
+   "context": "0.28.1 (6th December, 2024) Fix SSL case where verify=False together with client side certificates."
+  },
+  "s4": {
+   "title": "requests README",
+   "site": "psf/requests",
+   "url": "https://github.com/psf/requests/blob/main/README.md",
+   "context": "Requests is a simple, yet elegant, HTTP library. … SOCKS Proxy Support Connection Timeouts Streaming Downloads"
+  },
+  "s5": {
+   "title": "aiohttp README",
+   "site": "aio-libs/aiohttp",
+   "url": "https://github.com/aio-libs/aiohttp/blob/master/README.rst",
+   "context": "Supports both client and server side of HTTP protocol. Supports both client and server Web-Sockets out-of-the-box and avoids Callback Hell."
+  },
+  "s6": {
+   "title": "Python HTTP client benchmarks 2026",
+   "site": "example-benchmarks.dev",
+   "url": "https://www.example-benchmarks.dev/python-http-clients-2026",
+   "context": ""
+  }
+ },
+ "report": "# Deep Research Report: Choosing a Python HTTP Client for a New Backend Service (2026)\n\n## Executive summary\nAfter reviewing documentation, release histories and community discussion, this report recommends **httpx** as the default HTTP client for new Python backend services in 2026. It combines a familiar requests-like interface with first-class async support, and it has matured considerably, reaching its **1.0 stable release in 2025** [1][4].\n\n## 1. Background\nPython has three dominant HTTP client libraries. `requests` has been the de facto standard for over a decade. `aiohttp` emerged alongside asyncio as an async-first client and server framework. `httpx` arrived later, aiming to offer the ergonomics of requests with support for both synchronous and asynchronous programming [1].\n\n## 2. API design and developer experience\nhttpx deliberately mirrors the requests API, which lowers the learning curve for teams already familiar with requests [2]. Both sync and async clients are available from one package [1].\n\nrequests remains popular and, since version 2.30, **also supports async/await natively** via `requests.AsyncSession`, making it viable for async frameworks [5].\n\n## 3. Reliability defaults\nA frequently overlooked difference is timeout handling. httpx applies timeouts by default, whereas requests will wait indefinitely unless a timeout is explicitly set [2][5].\n\n## 4. Performance\nIndependent benchmarks show aiohttp is roughly **3x faster than httpx** for high-concurrency workloads [10]. However, for typical service-to-service traffic the difference is rarely the bottleneck.\n\n## 5. WebSockets and server features\naiohttp provides both a client and a server, but **does not support WebSockets**, so teams needing WebSockets should look elsewhere [8].\n\n## 6. Recommendation\nChoose httpx for most new services. Consider aiohttp only for pure-asyncio services with very high concurrency needs. Keep requests for simple synchronous scripts.\n\n## Sources\n[1] httpx README — https://github.com/encode/httpx/blob/master/README.md\n[2] httpx docs: Compatibility with requests — https://github.com/encode/httpx/blob/master/docs/compatibility.md\n[4] httpx changelog — https://github.com/encode/httpx/blob/master/CHANGELOG.md\n[5] requests README — https://github.com/psf/requests/blob/main/README.md\n[8] aiohttp README — https://github.com/aio-libs/aiohttp/blob/master/README.rst\n[10] Python HTTP client benchmarks 2026 — https://www.example-benchmarks.dev/python-http-clients-2026\n",
+ "corrections": [
+  {
+   "text": "httpx reached its 1.0 stable release in 2025.",
+   "status": "unsupported",
+   "note": "The changelog's latest release is 0.28.1 from December 2024, followed only by an UNRELEASED section; the README doesn't mention 1.0.",
+   "cites": [
+    {
+     "source": "s3",
+     "quote": "0.28.1 (6th December, 2024)"
+    }
+   ]
+  },
+  {
+   "text": "requests supports async/await natively since 2.30 via requests.AsyncSession.",
+   "status": "unsupported",
+   "note": "The requests README never mentions async, AsyncSession or version 2.30.",
+   "cites": [
+    {
+     "source": "s4",
+     "quote": "Requests is a simple, yet elegant, HTTP library."
+    }
+   ]
+  },
+  {
+   "text": "aiohttp does not support WebSockets.",
+   "status": "unsupported",
+   "note": "The aiohttp README says the opposite: it supports client and server WebSockets out of the box.",
+   "cites": [
+    {
+     "source": "s5",
+     "quote": "Supports both client and server Web-Sockets out-of-the-box and avoids Callback Hell."
+    }
+   ]
+  }
+ ]
 }
 </script>
 

@@ -18,20 +18,25 @@ If you can't tell what decision or question the answer should serve, ask one sho
 
 ## Steps
 
-1. **Find the answer.** State it in one or two sentences, and make it a direct recommendation or finding, not a topic summary. In verify mode, take it from the report. If the report doesn't reach one, give the best-supported answer and say the report was inconclusive.
-2. **Pick the claims that matter.** Choose 3-5 reasons behind the answer and 1-3 risks: what could make it wrong, or when it wouldn't apply. Leave out background and filler.
+1. **Find the answer.** Lead with the pick or finding, then the main reason, in 25 words or fewer (for example "httpx. It covers sync and async code with one API."). Put conditions and exceptions in risks, not in the answer. In verify mode, take it from the report. If the report doesn't reach one, give the best-supported answer and say the report was inconclusive.
+2. **Pick the claims that matter.** Choose 3-5 reasons behind the answer and 1-4 risks: what could make it wrong, or when it wouldn't apply. Leave out background and filler. If the question is about what's current ("in 2026", "best now", "latest"), check dates as well: last release, publish or update date. Make staleness a risk when it matters.
 3. **Get the evidence.** For each claim, open its source (in verify mode, the URL the report cites) and copy:
-   - `quote`: the exact sentence that bears on the claim, character for character.
-   - `context`: that sentence plus about one sentence either side, character for character. The quote must appear exactly inside the context.
+   - `quote`: the exact sentence that bears on the claim, word for word as a reader sees it on the page. Strip formatting markup (HTML tags, `**`, backticks, link syntax) but never change a word or number. For facts that aren't sentences, such as a version heading, table row or release date, quote the shortest line that shows the fact as displayed.
+   - `context`: the quote plus up to one sentence either side, from the same paragraph. Leave out headings and code blocks unless the heading is itself the quote. The quote must appear exactly inside the context.
+   In verify mode, check each claim against the sources the report cites for it. Don't bring in new sources.
 4. **Check each claim separately.** Re-read the quote against the claim as a skeptic, not as the claim's author:
-   - `supported`: the quote clearly says it.
+   - `supported`: the quote clearly says it. A reasonable inference from the source is `partial`, not `supported`.
    - `partial`: the quote says something weaker, narrower or older, and a `note` explains the gap.
-   - `unsupported`: the source doesn't say it or says the opposite, and a `note` explains.
-   - `unverified`: the source couldn't be opened (paywall, block, dead link). Leave `quote` and `context` empty and say why in `note`.
-   Never mark a claim `supported` from memory or from the report's own wording.
-5. **Re-check the answer.** Base the answer only on `supported` and `partial` claims. If dropping the `unsupported` ones changes the answer, change it and say so in a risk. Set `confidence` to `high`, `medium` or `low`.
-6. **Write one next step.** Make it concrete and doable today.
-7. **Render** (see Output).
+   - `unsupported`: the source doesn't say it or says the opposite, and a `note` explains. Quote the passage that contradicts the claim. If the source is silent, quote the passage where it would appear (for example the feature list) and say it's missing.
+   - `unverified`: the source couldn't be opened (paywall, block, dead link). Keep the source in `sources` and the cite on the claim, leave `quote` and `context` empty, and say why in `note`.
+   Never mark a claim `supported` from memory or from the report's own wording. If a claim cites several sources, its status reflects them together. Say in `note` which source supports which part when they differ.
+5. **Re-check the answer.** Base the answer only on `supported` and `partial` claims. If dropping the `unsupported` ones changes the answer, change it and say so in a risk. Set `confidence`:
+   - `high`: every reason is supported and the sources agree.
+   - `medium`: some reasons are partial, the sources are thin or dated, or a risk could flip the answer.
+   - `low`: a key reason is unsupported or unchecked, or good sources disagree.
+6. **List what didn't hold up** (verify mode). Report claims that failed the check and aren't part of your reasons or risks go in `corrections`, with status `unsupported` and a note saying what the source actually says. Only include claims that matter to the question.
+7. **Write one next step.** Make it concrete and doable today.
+8. **Render** (see Output).
 
 ## Output
 
@@ -49,21 +54,24 @@ Keep the reply around the view to one line. Don't repeat the card in chat.
 
 ```json
 {
+  "mode": "research|verify",
   "question": "The user's question, in one line",
   "answer": { "text": "1-2 sentence answer", "confidence": "high|medium|low",
               "cites": [{ "source": "s1", "quote": "exact sentence" }] },
   "reasons":    [{ "text": "claim", "status": "supported|partial|unsupported|unverified",
                    "note": "only when not supported", "cites": [{ "source": "s1", "quote": "exact sentence" }] }],
   "risks":      [ same shape as reasons ],
+  "corrections": [ verify mode only: same shape as reasons, report claims that failed the check ],
   "next_steps": [{ "text": "one concrete action" }],
-  "sources": { "s1": { "title": "Page title", "site": "domain.com", "url": "https://...",
+  "sources": { "s1": { "title": "Page title", "site": "short label, e.g. nature.com or encode/httpx", "url": "https://...",
                        "context": "exact passage containing every quote cited from this source" } },
-  "report": "verify mode only: the original report text, optional"
+  "report": "verify mode only: the original report text (omit in research mode)"
 }
 ```
 
 JSON rules:
-- Only `http`/`https` URLs.
+- Only `http`/`https` URLs. Use the page a person would open, not a raw-file or API URL.
+- The answer's `cites` need no status; its support comes from the reasons.
 - Put the source's most relevant sentences in `context`. If several claims cite the same source from different places, join those passages with " … ".
 - Escape quotes and newlines properly, and write every `</` as `<\/` so no text can close the script tag.
 
@@ -79,6 +87,9 @@ JSON rules:
 
 **Watch out**
 ❔ <claim> — [3] (couldn't check: <reason>)
+
+**Didn't hold up** (verify mode)
+❌ <report's claim> — [4] (<what the source says>)
 
 **Next step:** <action>
 
