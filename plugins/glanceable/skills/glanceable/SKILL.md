@@ -41,7 +41,7 @@ If you can't tell what decision or question the answer should serve, ask one sho
 ## Output
 
 1. Read `template.html` from this skill's folder.
-2. Replace only the JSON inside `<script type="application/json" id="glance-data">` with your data. Keep everything else byte for byte.
+2. Replace only the JSON inside `<script type="application/json" id="glance-data">` with your data, and replace the `<title>` text with a 2-5 word name for the question (for example "Python HTTP Client Pick"). Keep everything else byte for byte.
 3. Show the result:
    - **Claude:** publish it as an HTML artifact.
    - **ChatGPT / Gemini:** open it in Canvas as HTML and preview it.
