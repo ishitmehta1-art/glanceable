@@ -1,0 +1,14 @@
+{
+  "name": "glanceable",
+  "displayName": "Glanceable",
+  "version": "0.1.0",
+  "description": "Turns any deep research report, or a new question, into a one-screen answer where every line opens its exact source passage.",
+  "author": {
+    "name": "Ishit Mehta",
+    "url": "https://github.com/ishitmehta1-art"
+  },
+  "homepage": "https://github.com/ishitmehta1-art/glanceable",
+  "repository": "https://github.com/ishitmehta1-art/glanceable",
+  "license": "MIT",
+  "keywords": ["research", "deep-research", "citations", "verification", "summary"]
+}

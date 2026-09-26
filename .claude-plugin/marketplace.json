@@ -1,0 +1,15 @@
+{
+  "name": "glanceable",
+  "owner": {
+    "name": "Ishit Mehta",
+    "url": "https://github.com/ishitmehta1-art"
+  },
+  "description": "Answer-first views of AI research, with every claim one click from its source.",
+  "plugins": [
+    {
+      "name": "glanceable",
+      "source": "./plugins/glanceable",
+      "description": "Turns any deep research report, or a new question, into a one-screen answer where every line opens its exact source passage."
+    }
+  ]
+}

@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glanceable answer</title>
+<style>
+:root {
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --text: #1c1c1a;
+  --muted: #62625d;
+  --line: #e3e2dd;
+  --accent: #2f5bd3;
+  --accent-soft: #e8eefc;
+  --ok: #1d7a46;
+  --ok-soft: #e3f3e9;
+  --warn: #9a6200;
+  --warn-soft: #fbf0d9;
+  --bad: #b3261e;
+  --bad-soft: #fbe5e3;
+  --na: #62625d;
+  --na-soft: #eeeeea;
+  --mark: #ffe58a;
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a3a29b; --line: #34332f;
+    --accent: #8aa9ff; --accent-soft: #232c45;
+    --ok: #6fd39b; --ok-soft: #1c3326; --warn: #f0c060; --warn-soft: #3a2f17;
+    --bad: #ff8f86; --bad-soft: #3d1f1c; --na: #a3a29b; --na-soft: #2b2b28;
+    --mark: #6b5a12; --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151514; --surface: #1f1f1d; --text: #ecebe6; --muted: #a3a29b; --line: #34332f;
+  --accent: #8aa9ff; --accent-soft: #232c45;
+  --ok: #6fd39b; --ok-soft: #1c3326; --warn: #f0c060; --warn-soft: #3a2f17;
+  --bad: #ff8f86; --bad-soft: #3d1f1c; --na: #a3a29b; --na-soft: #2b2b28;
+  --mark: #6b5a12; --shadow: none;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.layout {
+  max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px;
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px;
+}
+@media (min-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr) 400px; padding: 32px 24px 56px; }
+}
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px;
+}
+.eyebrow { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.question { font-size: 15px; color: var(--muted); margin: 0 0 14px; }
+.answer { font-size: 22px; line-height: 1.35; font-weight: 650; margin: 0; }
+button.answer {
+  display: block; width: 100%; background: none; border: 0; padding: 0; color: inherit;
+  font-family: inherit; text-align: left; cursor: pointer; border-radius: 6px;
+}
+button.answer:hover { color: var(--accent); }
+button.answer:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@media (min-width: 900px) { .answer { font-size: 26px; } }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+  padding: 3px 10px; border-radius: 999px; background: var(--na-soft); color: var(--muted);
+}
+.section { margin-top: 20px; }
+.section h2 { font-size: 15px; margin: 0 0 10px; }
+.items { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.item {
+  display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start;
+  width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+}
+.item:hover { border-color: var(--accent); }
+.item:focus-visible, .chip:focus-visible, .close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.item[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.item.plain { cursor: default; }
+.item.plain:hover { border-color: var(--line); }
+.badge {
+  width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 13px; font-weight: 700; margin-top: 1px;
+}
+.s-supported .badge { background: var(--ok-soft); color: var(--ok); }
+.s-partial .badge { background: var(--warn-soft); color: var(--warn); }
+.s-unsupported .badge { background: var(--bad-soft); color: var(--bad); }
+.s-unverified .badge, .s-none .badge { background: var(--na-soft); color: var(--na); }
+.s-unsupported .text { text-decoration: line-through; text-decoration-color: var(--bad); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.chip {
+  font: inherit; font-size: 12px; cursor: pointer; border: 1px solid var(--line);
+  background: transparent; color: var(--muted); border-radius: 6px; padding: 1px 7px;
+}
+.chip:hover { color: var(--accent); border-color: var(--accent); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); margin-top: 20px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .badge { width: 20px; height: 20px; font-size: 11px; margin: 0; }
+details.report { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 14px; }
+details.report summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+details.report pre { white-space: pre-wrap; font: 14px/1.6 inherit; font-family: inherit; color: var(--muted); }
+
+/* Source panel */
+.panel { position: relative; }
+.panel-inner { position: sticky; top: 24px; }
+.panel .empty { color: var(--muted); font-size: 14px; }
+.panel h3 { font-size: 17px; margin: 0 0 4px; line-height: 1.35; }
+.site { font-size: 13px; color: var(--muted); margin: 0 0 12px; overflow-wrap: anywhere; }
+.status-line { font-size: 13px; padding: 8px 10px; border-radius: 8px; margin: 0 0 14px; }
+.status-line.s-supported { background: var(--ok-soft); color: var(--ok); }
+.status-line.s-partial { background: var(--warn-soft); color: var(--warn); }
+.status-line.s-unsupported { background: var(--bad-soft); color: var(--bad); }
+.status-line.s-unverified { background: var(--na-soft); color: var(--na); }
+.claim { font-size: 14px; color: var(--muted); margin: 0 0 12px; }
+.passage {
+  font-size: 15px; line-height: 1.65; margin: 0 0 16px; padding-left: 12px;
+  border-left: 3px solid var(--line); overflow-wrap: anywhere;
+}
+.passage mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 2px; }
+.note { font-size: 13px; color: var(--muted); margin: 0 0 16px; }
+.open { display: inline-flex; gap: 6px; color: var(--accent); font-weight: 600; text-decoration: none; }
+.open:hover { text-decoration: underline; }
+.close { display: none; }
+
+@media (max-width: 899px) {
+  .panel {
+    position: fixed; inset: auto 0 0 0; max-height: 75vh; overflow: auto; z-index: 10;
+    border-radius: var(--radius) var(--radius) 0 0; transform: translateY(105%);
+    transition: transform .2s ease;
+  }
+  .panel.open-sheet { transform: none; }
+  .panel-inner { position: static; }
+  .close {
+    display: block; margin-left: auto; font: inherit; font-size: 14px; background: none;
+    border: 1px solid var(--line); color: var(--muted); border-radius: 8px; padding: 2px 10px; cursor: pointer;
+  }
+}
+@media (prefers-reduced-motion: reduce) { .panel { transition: none; } }
+</style>
+</head>
+<body>
+<main class="layout">
+  <section class="card" id="card" aria-label="Answer"></section>
+  <aside class="card panel" id="panel" aria-label="Source" aria-live="polite">
+    <div class="panel-inner" id="panel-inner">
+      <p class="empty">Click any line to see the exact passage from its source.</p>
+    </div>
+  </aside>
+</main>
+
+<!--
+  GLANCEABLE DATA
+  Replace ONLY the JSON inside this script tag. The page builds itself from it.
+  Schema: see SKILL.md ("Data format").
+-->
+<script type="application/json" id="glance-data">
+{
+  "question": "Example: should a small team pick PostgreSQL or MongoDB for an order-tracking app?",
+  "answer": {
+    "text": "PostgreSQL. Orders, customers and payments are related records, and the team needs transactions across them.",
+    "confidence": "high",
+    "cites": [{ "source": "s1", "quote": "Relational data with many joins fits a relational database best." }]
+  },
+  "reasons": [
+    {
+      "text": "Order data is highly relational (orders link to customers, items and payments).",
+      "status": "supported",
+      "cites": [{ "source": "s1", "quote": "Relational data with many joins fits a relational database best." }]
+    },
+    {
+      "text": "Multi-record transactions are simpler and safer in PostgreSQL.",
+      "status": "partial",
+      "note": "The source says both support transactions; it only says PostgreSQL's are more mature.",
+      "cites": [{ "source": "s2", "quote": "Both databases now support multi-document transactions, though PostgreSQL's have a longer track record." }]
+    },
+    {
+      "text": "MongoDB is always faster for writes.",
+      "status": "unsupported",
+      "note": "The cited source does not say this. It says performance depends on the workload.",
+      "cites": [{ "source": "s2", "quote": "Neither is universally faster; results depend heavily on workload and schema design." }]
+    }
+  ],
+  "risks": [
+    {
+      "text": "If product attributes vary a lot, a rigid schema can slow changes.",
+      "status": "unverified",
+      "note": "The source page could not be opened to check this.",
+      "cites": [{ "source": "s3", "quote": "" }]
+    }
+  ],
+  "next_steps": [
+    { "text": "Sketch the five core tables and check whether any data truly needs a flexible schema." }
+  ],
+  "sources": {
+    "s1": {
+      "title": "Example source: choosing a database",
+      "site": "example.com",
+      "url": "https://example.com/choosing-a-database",
+      "context": "When deciding, look at the shape of your data first. Relational data with many joins fits a relational database best. Document stores shine when each record is self-contained."
+    },
+    "s2": {
+      "title": "Example source: transactions and performance",
+      "site": "example.org",
+      "url": "https://example.org/transactions",
+      "context": "Both databases now support multi-document transactions, though PostgreSQL's have a longer track record. Neither is universally faster; results depend heavily on workload and schema design."
+    },
+    "s3": {
+      "title": "Example source: schema flexibility",
+      "site": "example.net",
+      "url": "https://example.net/schemas",
+      "context": ""
+    }
+  },
+  "report": ""
+}
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var data;
+  try {
+    data = JSON.parse(document.getElementById("glance-data").textContent);
+  } catch (e) {
+    document.getElementById("card").textContent = "Could not read the answer data: " + e.message;
+    return;
+  }
+  var sources = data.sources || {};
+  var sourceOrder = Object.keys(sources);
+  var STATUS = {
+    supported:   { icon: "✓", label: "Supported by the source" },
+    partial:     { icon: "!", label: "Partly supported by the source" },
+    unsupported: { icon: "✕", label: "Not supported by the source" },
+    unverified:  { icon: "?", label: "Couldn't check the source" }
+  };
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function safeUrl(u) {
+    try {
+      var p = new URL(u);
+      return (p.protocol === "https:" || p.protocol === "http:") ? p : null;
+    } catch (e) { return null; }
+  }
+  function sourceNumber(id) { return sourceOrder.indexOf(id) + 1; }
+
+  var card = document.getElementById("card");
+  var panel = document.getElementById("panel");
+  var inner = document.getElementById("panel-inner");
+  var active = null;
+
+  function show(item, cite, button) {
+    if (active) active.setAttribute("aria-pressed", "false");
+    if (button) { button.setAttribute("aria-pressed", "true"); active = button; }
+    var src = sources[cite.source] || {};
+    var status = item.status && STATUS[item.status] ? item.status : null;
+    inner.replaceChildren();
+
+    var close = el("button", "close", "Close");
+    close.type = "button";
+    close.addEventListener("click", hide);
+    inner.appendChild(close);
+
+    inner.appendChild(el("p", "eyebrow", "Source " + sourceNumber(cite.source)));
+    inner.appendChild(el("h3", null, src.title || "Untitled source"));
+    inner.appendChild(el("p", "site", src.site || src.url || ""));
+    if (status) inner.appendChild(el("p", "status-line s-" + status, STATUS[status].label));
+    inner.appendChild(el("p", "claim", "Claim: " + item.text));
+
+    var context = src.context || "";
+    var quote = cite.quote || "";
+    if (context || quote) {
+      var p = el("blockquote", "passage");
+      var body = context || quote;
+      var at = quote ? body.indexOf(quote) : -1;
+      if (at >= 0) {
+        p.appendChild(document.createTextNode(body.slice(0, at)));
+        p.appendChild(el("mark", null, quote));
+        p.appendChild(document.createTextNode(body.slice(at + quote.length)));
+      } else {
+        p.textContent = body;
+      }
+      inner.appendChild(p);
+    } else {
+      inner.appendChild(el("p", "note", "No passage was captured for this source."));
+    }
+    if (item.note) inner.appendChild(el("p", "note", item.note));
+
+    var url = safeUrl(src.url);
+    if (url) {
+      var href = url.href.split("#")[0];
+      if (quote) href += "#:~:text=" + encodeURIComponent(quote.slice(0, 300));
+      var a = el("a", "open", "View original ↗");
+      a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer";
+      inner.appendChild(a);
+    }
+    panel.classList.add("open-sheet");
+  }
+  function hide() {
+    panel.classList.remove("open-sheet");
+    if (active) { active.setAttribute("aria-pressed", "false"); active = null; }
+  }
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") hide(); });
+
+  function renderItem(item) {
+    var li = el("li");
+    var cites = (item.cites || []).filter(function (c) { return c && sources[c.source]; });
+    var status = item.status && STATUS[item.status] ? item.status : "none";
+    var row = el(cites.length ? "button" : "div", "item s-" + status + (cites.length ? "" : " plain"));
+    if (cites.length) {
+      row.type = "button";
+      row.setAttribute("aria-pressed", "false");
+      row.addEventListener("click", function () { show(item, cites[0], row); });
+    }
+    var badge = el("span", "badge", status === "none" ? "→" : STATUS[status].icon);
+    badge.setAttribute("aria-hidden", "true");
+    row.appendChild(badge);
+    var col = el("div");
+    var text = el("div", "text", item.text);
+    if (status !== "none") text.setAttribute("aria-label", item.text + ". " + STATUS[status].label);
+    col.appendChild(text);
+    if (cites.length) {
+      var chips = el("div", "chips");
+      cites.forEach(function (c) {
+        var chip = el("span", "chip", "[" + sourceNumber(c.source) + "] " + (sources[c.source].site || "source"));
+        chip.setAttribute("role", "button");
+        chip.tabIndex = 0;
+        function open(e) { e.stopPropagation(); show(item, c, row); }
+        chip.addEventListener("click", open);
+        chip.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(e); } });
+        chips.appendChild(chip);
+      });
+      col.appendChild(chips);
+    }
+    row.appendChild(col);
+    li.appendChild(row);
+    return li;
+  }
+  function renderSection(title, list) {
+    if (!list || !list.length) return;
+    var s = el("div", "section");
+    s.appendChild(el("h2", null, title));
+    var ul = el("ul", "items");
+    list.forEach(function (i) { ul.appendChild(renderItem(i)); });
+    s.appendChild(ul);
+    card.appendChild(s);
+  }
+
+  // Header: question and answer
+  if (data.question) {
+    card.appendChild(el("p", "eyebrow", "Question"));
+    card.appendChild(el("p", "question", data.question));
+  }
+  var answer = data.answer || {};
+  card.appendChild(el("p", "eyebrow", "Answer"));
+  var answerCites = (answer.cites || []).filter(function (c) { return c && sources[c.source]; });
+  var ans = el(answerCites.length ? "button" : "p", "answer");
+  ans.textContent = answer.text || "No answer provided.";
+  if (answerCites.length) {
+    ans.type = "button";
+    ans.addEventListener("click", function () { show({ text: answer.text }, answerCites[0], null); });
+  }
+  card.appendChild(ans);
+
+  // Counts
+  var all = [].concat(data.reasons || [], data.risks || []);
+  var counts = { supported: 0, partial: 0, unsupported: 0, unverified: 0 };
+  all.forEach(function (i) { if (counts[i.status] != null) counts[i.status]++; });
+  var meta = el("div", "meta");
+  if (answer.confidence) meta.appendChild(el("span", "pill", "Confidence: " + answer.confidence));
+  meta.appendChild(el("span", "pill", counts.supported + " of " + all.length + " claims fully supported"));
+  meta.appendChild(el("span", "pill", sourceOrder.length + " sources"));
+  card.appendChild(meta);
+
+  renderSection("Why", data.reasons);
+  renderSection("Watch out", data.risks);
+  renderSection("Next step", data.next_steps);
+
+  var legend = el("div", "legend");
+  Object.keys(STATUS).forEach(function (k) {
+    var s = el("span", "s-" + k);
+    var b = el("span", "badge", STATUS[k].icon);
+    b.setAttribute("aria-hidden", "true");
+    s.appendChild(b);
+    s.appendChild(document.createTextNode(STATUS[k].label.replace(" by the source", "")));
+    legend.appendChild(s);
+  });
+  card.appendChild(legend);
+
+  if (data.report) {
+    var d = el("details", "report");
+    d.appendChild(el("summary", null, "Full report"));
+    d.appendChild(el("pre", null, data.report));
+    card.appendChild(d);
+  }
+})();
+</script>
+</body>
+</html>
